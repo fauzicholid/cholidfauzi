@@ -84,3 +84,12 @@ pooling) that classifies each patch by its center pixel's LULC class. Global
 average pooling (rather than flattening) keeps the architecture valid for
 any `--patch-size` used upstream, so patch size can be tuned per dataset
 without touching the model code.
+
+## Trying it with RTRW labels
+
+West Java's RTRW (Rencana Tata Ruang Wilayah) pola-ruang layer is a natural
+label source for step 2 -- it's an existing province-wide land-use
+classification. See [`sample_data/`](sample_data/) for a placeholder version
+(real class names and coordinates, made-up geometry/imagery) that proves the
+pipeline runs end-to-end, plus links to where to get the real dataset and
+how to swap it in.
