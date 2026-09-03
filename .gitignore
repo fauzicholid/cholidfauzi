@@ -1,0 +1,8 @@
+# Generated data / model artifacts (large, regenerable) -- not checked in
+modeling/runs/
+modeling/**/runs/
+*.npz
+*.tif
+*.tiff
+__pycache__/
+*.pyc
