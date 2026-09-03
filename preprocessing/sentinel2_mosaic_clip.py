@@ -5,7 +5,7 @@ and clip the result to an area of interest (AOI).
 Usage:
     python sentinel2_mosaic_clip.py \\
         --input-dir /path/to/sentinel2_tiles \\
-        --aoi preprocessing/aoi/west_java_bbox.geojson \\
+        --aoi preprocessing/aoi/west_java_boundary.geojson \\
         --output-dir /path/to/output \\
         --bands B02 B03 B04 B08
 
