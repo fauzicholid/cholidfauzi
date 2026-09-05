@@ -7,6 +7,8 @@ Information Systems Engineering and Business Intelligence).
 
 Built from the pipeline in `../preprocessing/` and `../analysis/`,
 including the diagnostic experiments in `../analysis/experiments/` that
-trace and correct the ConvLSTM class-imbalance collapse reported in
-Section IV. See those directories' READMEs to reproduce the underlying
+trace and correct the ConvLSTM class-imbalance collapse, and the
+independent ground-truth validation, NDMI-refined classification, and
+full model rebuild in `../analysis/v2_refined/` that both motivate and
+follow from it. See those directories' READMEs to reproduce the underlying
 results the manuscript reports.
