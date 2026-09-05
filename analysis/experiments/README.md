@@ -2,19 +2,20 @@
 
 The original comparison (`../ca_validate.py` vs. `../train_convlstm.py`)
 found CA-Markov out-performing ConvLSTM on the Non-vegetated class despite
-ConvLSTM's higher overall accuracy. These four scripts test three candidate
+ConvLSTM's higher overall accuracy. These five scripts test three candidate
 explanations — a label-downsampling artifact, a resolution mismatch between
 the two models, and unweighted-loss class imbalance — and quantify
-statistical significance. Run in order; each depends on the previous one's
-output (see each script's own docstring for exact dependencies). All read
-from `LC_DATA_DIR` (defaults to `../data`, same convention as the parent
-`analysis/` scripts).
+statistical significance, including for the corrected model. Run in order;
+each depends on the previous one's output (see each script's own docstring
+for exact dependencies). All read from `LC_DATA_DIR` (defaults to `../data`,
+same convention as the parent `analysis/` scripts).
 
 ```
 python exp0_diagnose_label_downsampling.py
 python exp1_ca_markov_coarse_grid.py
 python exp2_train_convlstm_fixed.py
 python exp3_significance_tests.py
+python exp4_fixed_convlstm_vs_camarkov.py
 ```
 
 ## What each one does, and what it found
@@ -63,8 +64,32 @@ significantly higher than CA-Markov's at this matched resolution (85.64% vs.
 Non-vegetated specifically (McNemar p = 5.55e-16 restricted to Non-vegetated
 ground truth) — statistically backing the collapse claim.
 
-**Known gap:** exp3 only tests the *original* unfixed ConvLSTM against
-CA-Markov, because exp2 saves only aggregate per-config metrics, not
-per-pixel prediction arrays for a specific seed. A significance test of
-CA-Markov vs. the *fixed* ConvLSTM (the comparison that now matters most,
-given exp2's results) has not yet been run.
+**`exp4_fixed_convlstm_vs_camarkov.py`** — Closes the gap left by exp3:
+retrains ConvLSTM under the winning combined configuration from exp2
+(corrected label downsampling + class-weighted loss) across the same 5
+seeds, saves each seed's per-pixel 2024 prediction, and repeats exp3's
+bootstrap-CI + McNemar procedure against CA-Markov's coarse-grid prediction
+(from exp1) for every seed. *Finding:* decisive and consistent —
+
+| Seed | OA — CA-Markov | OA — Fixed ConvLSTM | PA[Non-veg] — CA-Markov | PA[Non-veg] — Fixed ConvLSTM | McNemar p (Non-veg) |
+|---|---|---|---|---|---|
+| 0 | 74.37% | 75.13% | 4.71% | 62.40% | ≈0 |
+| 1 | 74.38% | 79.51% | 4.70% | 64.69% | ≈0 |
+| 2 | 74.38% | 81.27% | 4.71% | 56.42% | ≈0 |
+| 3 | 74.38% | 74.64% | 4.71% | 63.29% | ≈0 |
+| 4 | 74.38% | 76.85% | 4.71% | 66.53% | ≈0 |
+
+The fixed ConvLSTM exceeds CA-Markov's Non-vegetated PA in 5/5 seeds,
+significantly so in 5/5 (McNemar restricted to Non-vegetated ground truth,
+p ≈ 0 every time). Overall OA also favors the fixed ConvLSTM in 5/5 seeds,
+significant in 4/5 (seed 3 was a near-tie on OA, p = 0.29, though its
+Non-vegetated-restricted difference was still significant). CA-Markov's
+PA[Non-veg] here (~4.7%) differs from exp1's own figure (8.4%) because this
+test restricts to the stricter subset of pixels where both pipelines' ground
+truth agrees, matching exp3's methodology — not a discrepancy.
+
+Once resolution is matched and the loss is class-weighted, ConvLSTM does not
+just recover from its initial collapse — it significantly and consistently
+outperforms CA-Markov on the exact class the whole comparison turns on. The
+original "CA-Markov is more defensible" conclusion does not survive this
+diagnostic chain.
