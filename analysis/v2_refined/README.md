@@ -103,6 +103,15 @@ what it found, and rebuild both model families on a corrected classification.
    one had suggested (0.4509 vs. 0.3194), so the fix strengthens rather than
    undermines the paper's ConvLSTM-Kappa claim.
 
+9. `render_2025_maps.py` — renders the two 2025 projection maps used as
+   Fig. 3 and Fig. 4 in the paper: refined CA-Markov's projection at native
+   resolution, and refined ConvLSTM v3's projection (majority vote across
+   the 5 seeds) at its actual native 300x233 grid, upsampled by
+   nearest-neighbor rather than smoothed, so the resolution difference
+   between the two models stays visually honest. Saves to `../../paper/figures/`
+   by default (override with `LC_OUT_DIR`). Uses the same RGB palette as the
+   existing 2024 land-cover map (Fig. 2).
+
 ## Net result
 
 Rebuilding both models on the refined classification did not produce a
