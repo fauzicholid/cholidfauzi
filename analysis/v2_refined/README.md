@@ -26,8 +26,14 @@ what it found, and rebuild both model families on a corrected classification.
    project — concentrated in reference-Sparse pixels misclassified as Dense
    (PA = 25.2%), consistent with a single greenness index being unable to
    separate closed-canopy forest from healthy, high-NDVI cropland/plantation.
-   The sensitivity check changed OA by <1 point either way, so the crosswalk
-   judgment calls were not driving the result.
+   The sensitivity check moves OA by less than 1 point for the *refined*
+   classification (55.5% → 56.4%) but by more for the *initial* one (43.8%
+   → 40.5%, same held-out split) — in the direction of an even lower
+   initial-classification accuracy, not a higher one, so the ambiguous
+   classes are not the reason the initial classification looks poor.
+   Per-class Producer's Accuracy shifts by ≤1 point either way; User's
+   Accuracy for Dense vegetation drops 5-6 points once the ambiguous
+   Perkebunan polygons are excluded, under both classifications.
 
 3. `improve_classification.py` — computes NDMI = (B08−B11)/(B08+B11) (B11
    fetched, cloud-masked, and reprojected onto the analysis grid the same
@@ -78,15 +84,34 @@ what it found, and rebuild both model families on a corrected classification.
    one-off snippet in the original session rather than a saved script; they
    are reported here for completeness since the paper cites them directly.
 
+8. `rebuild_ca_markov_v2_coarse.py` — re-runs CA-Markov a second time on the
+   refined classifications, at ConvLSTM's own 300x233 coarse grid (mirroring
+   `../experiments/exp1_ca_markov_coarse_grid.py`, but on `sequence_raw_v2.pkl`
+   instead of the original `sequence_raw.pkl`). Added during a third
+   peer-review pass: comparing refined CA-Markov's *native*-resolution
+   validation figures directly against refined ConvLSTM's necessarily
+   *coarse*-grid figures (as the paper first did) repeats the exact
+   resolution confound Section III-H/IV-F diagnosed for the original
+   classification, without ever re-checking whether it recurs under the
+   refined labels. *Finding:* it does — refined CA-Markov's Non-vegetated PA
+   collapses from 46.3% (native) to 10.2% (coarse), matching the same
+   pattern found for the original classification (44.2% → 8.4%). At that
+   shared, resolution-matched grid, refined ConvLSTM v3 (OA 72.73%, Kappa
+   0.4509, PA[Non-veg] 34.4%) still exceeds refined CA-Markov (OA 61.82%,
+   Kappa 0.2871, PA[Non-veg] 10.2%) on every metric — the Kappa gap is
+   larger under the fair comparison (0.4509 vs. 0.2871) than the unmatched
+   one had suggested (0.4509 vs. 0.3194), so the fix strengthens rather than
+   undermines the paper's ConvLSTM-Kappa claim.
+
 ## Net result
 
 Rebuilding both models on the refined classification did not produce a
 clean verdict. Refined CA-Markov trades OA for FoM and keeps a single,
-stable 2025 Non-vegetated forecast; refined ConvLSTM (v3) reaches a higher
-overall Kappa but cannot, under either weighting scheme tested, produce a
-Non-vegetated forecast that is simultaneously precise, sensitive, and
-stable across seeds. See the paper's Discussion (Section V) for the full
-read of this result.
+stable 2025 Non-vegetated forecast; refined ConvLSTM (v3), even measured
+fairly at matched resolution (step 8), reaches a higher Kappa but cannot,
+under either weighting scheme tested, produce a Non-vegetated forecast that
+is simultaneously precise, sensitive, and stable across seeds. See the
+paper's Discussion (Section V) for the full read of this result.
 
 ## Data layout
 
